@@ -1,0 +1,132 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > FlightPath</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: FlightPath (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">FlightPath</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;/**
+&nbsp; * the class for the flighpath object which will be used to populate the flightpath database later.
+&nbsp; */
+<b class="nc">&nbsp;public class FlightPath {</b>
+&nbsp;    /**
+&nbsp;     * the order number of the order that the drone is completing for this current move
+&nbsp;     */
+&nbsp;    String orderNo ;
+&nbsp;    /**
+&nbsp;     * the longitude of the drone in its previous position
+&nbsp;     */
+&nbsp;    double fromLongitude;
+&nbsp;
+&nbsp;    double fromLatitude ;
+&nbsp;    /**
+&nbsp;     * the angle the drone took to move from its previous position to current position. if it is -999 then the drone is hovering
+&nbsp;     */
+&nbsp;    int angle ;
+&nbsp;    /**
+&nbsp;     * the longitude of the drone in its current position
+&nbsp;     */
+&nbsp;    double toLongitude ;
+&nbsp;    /**
+&nbsp;     * the latitude of the drone in its current position
+&nbsp;     */
+&nbsp;    double toLatitude ;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

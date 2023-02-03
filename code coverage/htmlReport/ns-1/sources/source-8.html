@@ -1,0 +1,345 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > LongLat</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: LongLat (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">LongLat</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    66.7%
+  </span>
+  <span class="absValue">
+    (6/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    57.5%
+  </span>
+  <span class="absValue">
+    (46/80)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import com.mapbox.geojson.Feature;
+&nbsp;import com.mapbox.geojson.Point;
+&nbsp;import com.mapbox.geojson.Polygon;
+&nbsp;import com.mapbox.turf.TurfJoins;
+&nbsp;
+&nbsp;import java.awt.geom.Line2D;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;public class LongLat {
+&nbsp;    /**
+&nbsp;     * the longitude of the current position
+&nbsp;     */
+&nbsp;    public double longitude;
+&nbsp;    /**
+&nbsp;     * the latitude of the current position
+&nbsp;     */
+&nbsp;    public double latitude;
+&nbsp;    /**
+&nbsp;     * the GeoJson Point value of the current location
+&nbsp;     */
+&nbsp;    public Point point;
+&nbsp;    /**
+&nbsp;     * the distance value of one move that is made by the drone in degrees
+&nbsp;     */
+<b class="fc">&nbsp;    public static double oneMove = 0.00015;</b>
+&nbsp;
+&nbsp;
+&nbsp;    //the coordinates of the edges of the confinement area
+&nbsp;    /**
+&nbsp;     * the longitude values of either end of the confinement area
+&nbsp;     */
+<b class="fc">&nbsp;    public static  double confAreaRight = -3.184319;</b>
+<b class="fc">&nbsp;    public static  double confAreaLeft = -3.192473;</b>
+&nbsp;    /**
+&nbsp;     * the latitude values of either end of the confinement area
+&nbsp;     */
+<b class="fc">&nbsp;    public static  double confAreaTop = 55.946233;</b>
+<b class="fc">&nbsp;    public static  double confAreaBottom = 55.942617;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the coordinates of appleton
+&nbsp;     */
+<b class="fc">&nbsp;    public static LongLat appleton = new LongLat(-3.186874,55.944494);</b>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    //Standard Contructor
+&nbsp;    /**
+&nbsp;     * The Constructor for the LongLat class which accepts 2 double precision numbers which are the
+&nbsp;     * longitude and latitude
+&nbsp;     * @param longitude a double precision number that represents the longitude of a specific point
+&nbsp;     * @param latitude a double precision number that represents the latitude of a specific point
+&nbsp;     */
+<b class="fc">&nbsp;    LongLat(double longitude,double latitude){</b>
+<b class="fc">&nbsp;        this.longitude = longitude;</b>
+<b class="fc">&nbsp;        this.latitude = latitude;</b>
+<b class="fc">&nbsp;        this.point = Point.fromLngLat(this.longitude,this.latitude);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Public Methods
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A Method that states if the drone is within the drone confinement area.
+&nbsp;     * @return true if the drone is within the confinement area and false otherwise
+&nbsp;     */
+&nbsp;    public boolean isConfined(){
+&nbsp;
+&nbsp;        //checks if the drone is in the confinement area.
+<b class="fc">&nbsp;        return ((longitude&lt; confAreaRight &amp;&amp; longitude&gt; confAreaLeft) &amp;&amp; (latitude&lt; confAreaTop &amp;&amp; latitude&gt; confAreaBottom));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A Method that calculates the Pythagorean distance between the point l1 and the current point of the instance
+&nbsp;     * @param l1 a LongLat object
+&nbsp;     * @return the Pythagorean distance between the LongLat object l1 and the current point of the instance
+&nbsp;     */
+&nbsp;    public double distanceTo(LongLat l1){
+<b class="fc">&nbsp;        if(l1==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        LongLat l2 = new LongLat(longitude,latitude);</b>
+&nbsp;        //calculates the Pythagorean distance between the 2 points.
+<b class="fc">&nbsp;        return Math.sqrt(Math.pow((l1.latitude-l2.latitude),2)+Math.pow((l1.longitude-l2.longitude),2));</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A method which checks if a LongLat object is close to (distance is less than 0.00015) the current point of the instance.
+&nbsp;     * @param l1 a LongLat object
+&nbsp;     * @return true if the Longlat object is close to the current point of the instance and false otherwise.
+&nbsp;     */
+&nbsp;    public boolean closeTo(LongLat l1){
+<b class="fc">&nbsp;        return distanceTo(l1)&lt;0.00015;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *  A method that shows the next position that the drone would be in if it makes one move (moves a distance of 0.00015)
+&nbsp;     *  in the current angle that it is facing.
+&nbsp;     * @param angle the current angle that the drone is facing
+&nbsp;     * @return a LongLat object that represents the next position the drone would be in if it makes one move in the angle
+&nbsp;     * given as a parameter
+&nbsp;     */
+&nbsp;    public LongLat nextPosition(int angle){
+&nbsp;
+&nbsp;        // the length in degrees of 1 move.
+<b class="fc">&nbsp;        final double dist = 0.00015;</b>
+&nbsp;        // if the angle is -999 then the drone is just hovering and does not move anywhere
+<b class="fc">&nbsp;        if(angle == -999){</b>
+<b class="fc">&nbsp;            return new LongLat(longitude,latitude);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        if(angle==0){</b>
+<b class="fc">&nbsp;            return new LongLat(longitude+0.00015,latitude);</b>
+&nbsp;        }
+&nbsp;        // the angle is between 0 and 90
+&nbsp;        //yMoved= distance moved vertically
+&nbsp;        //xMoved = distance moved horizontally
+<b class="fc">&nbsp;        else if(angle&lt;90){</b>
+<b class="fc">&nbsp;            double radians = Math.toRadians(angle);</b>
+<b class="fc">&nbsp;            double xMoved = dist * Math.cos(radians);</b>
+<b class="fc">&nbsp;            double yMoved = dist * Math.sin(radians);</b>
+<b class="fc">&nbsp;            return new LongLat(longitude+xMoved,latitude+yMoved);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        else if(angle ==90){</b>
+<b class="fc">&nbsp;            return new LongLat(longitude,latitude+0.00015);</b>
+&nbsp;        }
+&nbsp;        //the angle is between 90 and 180
+<b class="fc">&nbsp;        else if(angle&lt;180){</b>
+<b class="fc">&nbsp;            angle = angle - 90;</b>
+<b class="fc">&nbsp;            double radians = Math.toRadians(angle);</b>
+<b class="fc">&nbsp;            double xMoved = dist * Math.sin(radians);</b>
+<b class="fc">&nbsp;            double yMoved = dist * Math.cos(radians);</b>
+<b class="fc">&nbsp;            return new LongLat(longitude-xMoved,latitude+yMoved);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        else if(angle ==180){</b>
+<b class="nc">&nbsp;            return new LongLat(longitude-0.00015,latitude);</b>
+&nbsp;        }
+&nbsp;        // the angle is between 180 and 270
+<b class="fc">&nbsp;        else if(angle&lt;270){</b>
+<b class="fc">&nbsp;            angle = angle - 180;</b>
+<b class="fc">&nbsp;            double radians = Math.toRadians(angle);</b>
+<b class="fc">&nbsp;            double xMoved = dist * Math.cos(radians);</b>
+<b class="fc">&nbsp;            double yMoved = dist * Math.sin(radians);</b>
+<b class="fc">&nbsp;            return new LongLat(longitude-xMoved,latitude-yMoved);</b>
+&nbsp;        }
+<b class="fc">&nbsp;        else if(angle==270){</b>
+<b class="nc">&nbsp;            return new LongLat(longitude,latitude-0.00015);</b>
+&nbsp;        }
+&nbsp;        // the angle is between 270 and 360
+&nbsp;        else{
+<b class="fc">&nbsp;            angle = angle -270;</b>
+<b class="fc">&nbsp;            double radians = Math.toRadians(angle);</b>
+<b class="fc">&nbsp;            double xMoved = dist * Math.sin(radians);</b>
+<b class="fc">&nbsp;            double yMoved = dist * Math.cos(radians);</b>
+<b class="fc">&nbsp;            return new LongLat(longitude+xMoved,latitude-yMoved);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method checks if a drone is about to cross into the no fly zone. it checks if the line that its movement
+&nbsp;     * makes to the next position crosses any of the edges of any of the polygons of the no fly zones.
+&nbsp;     * @param nextPosition the longlat object of the next position that the drone will be in
+&nbsp;     * @return boolean if the line made by the drones movements crosses any of the edges of the no fly zone polygons.
+&nbsp;     */
+&nbsp;    public boolean inNoFlyZone(LongLat nextPosition){
+<b class="nc">&nbsp;        if(nextPosition==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        LongLat currentPosition = new LongLat(longitude,latitude);</b>
+<b class="nc">&nbsp;        List&lt;Feature&gt; noFlyZones = GeoJsonParser.noFlyZoneFeatures;</b>
+&nbsp;        //the line the drone would make as it moves to the next position
+<b class="nc">&nbsp;        Line2D movement = new Line2D.Double(currentPosition.longitude,currentPosition.latitude,nextPosition.longitude,nextPosition.latitude);</b>
+&nbsp;        // for each polygon that is in the no fly zone
+<b class="nc">&nbsp;        for (Feature noFlyZone : noFlyZones) {</b>
+<b class="nc">&nbsp;            if (noFlyZone.geometry() != null) {</b>
+<b class="nc">&nbsp;                Polygon polygon = (Polygon) noFlyZone.geometry();</b>
+&nbsp;
+<b class="nc">&nbsp;                for (int j = 0; j &lt; polygon.coordinates().get(0).size() - 1; j++) {</b>
+<b class="nc">&nbsp;                    int nextI = j + 1;</b>
+<b class="nc">&nbsp;                    List&lt;Double&gt; coordinates1 = polygon.coordinates().get(0).get(j).coordinates();</b>
+<b class="nc">&nbsp;                    List&lt;Double&gt; coordinates2 = polygon.coordinates().get(0).get(nextI).coordinates();</b>
+&nbsp;                    //for each coordinate in each of the polygons, it creates a line between the current coordinate and the next and check if
+&nbsp;                    // the drones line crosses that line
+<b class="nc">&nbsp;                    Line2D edge = new Line2D.Double(coordinates1.get(0), coordinates1.get(1), coordinates2.get(0), coordinates2.get(1));</b>
+&nbsp;                    //if it does cross the line, the loop breaks and it returns true;
+<b class="nc">&nbsp;                    if (movement.intersectsLine(edge)) {</b>
+<b class="nc">&nbsp;                        return true;</b>
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;        // if all of the polygons have been checked and the loop hasnt been brokem then the drone does not cross into the no fly
+&nbsp;        //zone so false is returned
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method calculates the angle between the current  position of the drone and the next position of the drone
+&nbsp;     * @param nextNode the next position of the drone
+&nbsp;     * @return the integer value of the angle between the two positions
+&nbsp;     */
+&nbsp;    public int angleDirectionTo(LongLat nextNode){
+<b class="nc">&nbsp;        if(nextNode==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+&nbsp;        // calculates the angle between the 2 postions
+<b class="nc">&nbsp;        double angleDirection = Math.toDegrees(Math.atan2((nextNode.longitude-longitude),(nextNode.latitude-latitude)));</b>
+&nbsp;        // if it is negative, add 360
+<b class="nc">&nbsp;        if(angleDirection&lt;0){</b>
+<b class="nc">&nbsp;            angleDirection = angleDirection +360;</b>
+&nbsp;        }
+&nbsp;        //returns the integer value of the angles rounded to nearest 10
+<b class="nc">&nbsp;        return (int) Math.round(angleDirection);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method checks if the current point is in any of the no fly zone polygons
+&nbsp;     * @return boolean of whether the current point is in the no fly zone
+&nbsp;     */
+&nbsp;    public boolean inNoFlyPolygon(){
+<b class="nc">&nbsp;        List&lt;Feature&gt; zones= GeoJsonParser.noFlyZoneFeatures;</b>
+&nbsp;        //for each polygon, it check if the angle is in the polygon with TurfJoins
+<b class="nc">&nbsp;        for(Feature zone :zones){</b>
+<b class="nc">&nbsp;            Polygon currzone = (Polygon) zone.geometry();</b>
+<b class="nc">&nbsp;            if(currzone!=null){</b>
+<b class="nc">&nbsp;                if(TurfJoins.inside(point,currzone)){</b>
+<b class="nc">&nbsp;                    return true;</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

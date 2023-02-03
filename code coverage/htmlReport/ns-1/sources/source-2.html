@@ -1,0 +1,165 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > App</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: App (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">App</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/17)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;/**
+&nbsp; * Hello world!
+&nbsp; *
+&nbsp; */
+<b class="nc">&nbsp;public class App </b>
+&nbsp;{
+&nbsp;    public static String day;
+&nbsp;    public static String month;
+&nbsp;    public static String year;
+&nbsp;    public static String webServerPort;
+&nbsp;    public static String databasePort;
+&nbsp;
+&nbsp;
+&nbsp;    public static void main(String[] args) {
+<b class="nc">&nbsp;        day = args[0];</b>
+<b class="nc">&nbsp;        month = args[1];</b>
+<b class="nc">&nbsp;        year = args[2];</b>
+<b class="nc">&nbsp;        webServerPort = args[3];</b>
+<b class="nc">&nbsp;        databasePort = args[4];</b>
+<b class="nc">&nbsp;        if(day ==null || month == null || year == null || webServerPort == null || databasePort == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Invalid Arguments detected. Please check the arguments given&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        Orders.getCoordinatesAndOrders();</b>
+<b class="nc">&nbsp;        GeoJsonParser.getNoFlyZones();</b>
+<b class="nc">&nbsp;        GeoJsonParser.getLandmarks();</b>
+<b class="nc">&nbsp;        Drone drone = new Drone(1500);</b>
+<b class="nc">&nbsp;        List&lt;LongLat&gt; moves = HexGraph.getRoute(drone);</b>
+<b class="nc">&nbsp;        String fc =GeoJsonParser.movesToFCCollection(moves);</b>
+<b class="nc">&nbsp;        GeoJsonParser.outputGeoJsonFile(fc);</b>
+<b class="nc">&nbsp;        ApacheDatabase.createDeliveriesDatabase();</b>
+<b class="nc">&nbsp;        ApacheDatabase.createFlightPathDatabase(moves);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

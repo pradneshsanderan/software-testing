@@ -1,0 +1,380 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Menus</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: Menus (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Menus</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (3/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    11.7%
+  </span>
+  <span class="absValue">
+    (9/77)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">Menus$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Menus$2</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+  <tr>
+    <td class="name">Menus$Menu</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    33.3%
+  </span>
+  <span class="absValue">
+    (3/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    11.2%
+  </span>
+  <span class="absValue">
+    (9/80)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import com.google.gson.Gson;
+&nbsp;import java.io.IOException;
+&nbsp;import java.lang.reflect.Type;
+&nbsp;import java.net.URI;
+&nbsp;import java.net.http.HttpClient;
+&nbsp;import java.net.http.HttpRequest;
+&nbsp;import java.net.http.HttpResponse;
+&nbsp;import com.google.gson.reflect.TypeToken;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashMap;
+&nbsp;
+&nbsp;public class Menus {
+&nbsp;
+&nbsp;    //Public Variables
+&nbsp;    /**
+&nbsp;     * the name of the shop
+&nbsp;     */
+&nbsp;    public String name;
+&nbsp;    /**
+&nbsp;     * the port that the webserver is connected to
+&nbsp;     */
+&nbsp;    public String port;
+&nbsp;    /**
+&nbsp;     * a hashmap that stores the name and price of every item on the menu
+&nbsp;     */
+<b class="fc">&nbsp;    public static HashMap&lt;String,Integer&gt; prices = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;
+&nbsp;    //Private Variables
+&nbsp;    /**
+&nbsp;     * the Url String which is the Url for the menus file in the webserver
+&nbsp;     */
+<b class="fc">&nbsp;    private static final String urlString = &quot;http://localhost:&quot;+App.webServerPort+&quot;/menus/menus.json&quot;;</b>
+&nbsp;    /**
+&nbsp;     * the HttpClient that is shared between all HttpRequest
+&nbsp;     */
+<b class="fc">&nbsp;    private static final HttpClient client = HttpClient.newHttpClient();</b>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The Menu class which is used to parse response.body.
+&nbsp;     */
+<b class="nc">&nbsp;    public class Menu {</b>
+&nbsp;        String name;
+&nbsp;        String location;
+&nbsp;        ArrayList&lt;uk.ac.ed.inf.Menu&gt; menu;
+&nbsp;    }
+&nbsp;
+&nbsp;    //Standard Contructor
+&nbsp;    /**
+&nbsp;     * the Constructor for the Menus class which accepts 2 Strings which represent the name of the machine
+&nbsp;     * and the port where the web server is running
+&nbsp;     * @param name a String representing the name of the machine
+&nbsp;     * @param port a String representing the port where the web server is running
+&nbsp;     */
+<b class="fc">&nbsp;    Menus(String name, String port){</b>
+<b class="fc">&nbsp;        this.name = name;</b>
+<b class="fc">&nbsp;        this.port = port;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Public Methods
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * A method which states the delivery cost for a valid order
+&nbsp;     * @param items a collection of Strings where each String represents an item that was ordered
+&nbsp;     * @return the total delivery cost for the order, including the price of the item and the standard delivery charge
+&nbsp;     */
+&nbsp;    public static int  getDeliveryCost(String ... items) {
+<b class="fc">&nbsp;        int standardDeliveryCharge = 50;</b>
+&nbsp;        try{
+&nbsp;            //the request that would be sent to the website as a http request
+<b class="fc">&nbsp;            HttpRequest request = HttpRequest.newBuilder()</b>
+<b class="fc">&nbsp;                    .uri(URI.create(urlString))</b>
+<b class="nc">&nbsp;                    .build();</b>
+&nbsp;            //once we sent the request, we save the response in &quot;response&quot;
+<b class="nc">&nbsp;            HttpResponse&lt;String&gt; response =</b>
+<b class="nc">&nbsp;                    client.send(request, HttpResponse.BodyHandlers.ofString());</b>
+&nbsp;            //check the status code to check if the request had failed or not
+<b class="nc">&nbsp;            if(response.statusCode()!=200){</b>
+<b class="nc">&nbsp;                System.out.println(&quot;Fatal error: Unable to connect to server at port &quot; + App.webServerPort + &quot;.&quot;);</b>
+<b class="nc">&nbsp;                System.exit(1); // Exit the application</b>
+&nbsp;            }
+<b class="nc">&nbsp;            Type listType = new TypeToken&lt;ArrayList&lt;Menu&gt;&gt;() {}.getType();</b>
+&nbsp;            //use the fromJson(String,Type) to get a list of the Menu.
+<b class="nc">&nbsp;            ArrayList&lt;Menu&gt; menuList = new Gson().fromJson(response.body(), listType);</b>
+&nbsp;
+&nbsp;            // A hashmap to store the prices of each item.
+<b class="nc">&nbsp;            HashMap&lt;String,Integer&gt; prices = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;            for (Menu menu : menuList) {</b>
+<b class="nc">&nbsp;                int size = menu.menu.size();</b>
+<b class="nc">&nbsp;                for (int j = 0; j &lt; size; j++) {</b>
+&nbsp;                    // the current item
+<b class="nc">&nbsp;                    String currItem = menu.menu.get(j).item;</b>
+&nbsp;                    // the price of the current item
+<b class="nc">&nbsp;                    int currPence = menu.menu.get(j).pence;</b>
+&nbsp;                    //stores each item and the price in the hashmap, prices
+<b class="nc">&nbsp;                    prices.put(currItem, currPence);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;            int total = standardDeliveryCharge;</b>
+<b class="nc">&nbsp;            for (String item : items) {</b>
+&nbsp;                // for each item, add its price to the total delivery charge.
+<b class="nc">&nbsp;                total += prices.get(item);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            return total;</b>
+&nbsp;        //catches any IO Exception or interrupted exception and prints the error.
+<b class="nc">&nbsp;        }catch (IOException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;IOException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }catch (InterruptedException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;InterruptedException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return 0;</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method gets the name and price of each item on the menu and stores it in the prices hashmap
+&nbsp;     *
+&nbsp;     */
+&nbsp;    public static void  getPrices() {
+<b class="nc">&nbsp;        int standardDeliveryCharge = 50;</b>
+&nbsp;        try{
+&nbsp;            //the request that would be sent to the website as a http request
+<b class="nc">&nbsp;            HttpRequest request = HttpRequest.newBuilder()</b>
+<b class="nc">&nbsp;                    .uri(URI.create(urlString))</b>
+<b class="nc">&nbsp;                    .build();</b>
+&nbsp;            //once we sent the request, we save the response in &quot;response&quot;
+<b class="nc">&nbsp;            HttpResponse&lt;String&gt; response =</b>
+<b class="nc">&nbsp;                    client.send(request, HttpResponse.BodyHandlers.ofString());</b>
+&nbsp;            //check the status code to check if the request had failed or not
+<b class="nc">&nbsp;            if(response.statusCode()!=200){</b>
+<b class="nc">&nbsp;                System.out.println(&quot;error getting prices&quot;);</b>
+&nbsp;
+&nbsp;            }
+<b class="nc">&nbsp;            Type listType = new TypeToken&lt;ArrayList&lt;Menu&gt;&gt;() {}.getType();</b>
+&nbsp;            //use the fromJson(String,Type) to get a list of the Menu.
+<b class="nc">&nbsp;            ArrayList&lt;Menu&gt; menuList = new Gson().fromJson(response.body(), listType);</b>
+&nbsp;
+&nbsp;            //goes through each menu in the menu list
+<b class="nc">&nbsp;            for (Menu menu : menuList) {</b>
+<b class="nc">&nbsp;                int size = menu.menu.size();</b>
+&nbsp;                //goes through each item in the menu
+<b class="nc">&nbsp;                for (int j = 0; j &lt; size; j++) {</b>
+&nbsp;                    // the current item
+<b class="nc">&nbsp;                    String currItem = menu.menu.get(j).item;</b>
+&nbsp;                    // the price of the current item
+<b class="nc">&nbsp;                    int currPence = menu.menu.get(j).pence;</b>
+&nbsp;                    //stores each item and the price in the hashmap, prices
+<b class="nc">&nbsp;                    prices.put(currItem, currPence);</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+&nbsp;            //catches any IO Exception or interrupted exception and prints the error.
+<b class="nc">&nbsp;        }catch (IOException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;IOException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }catch (InterruptedException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;InterruptedException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method gets the total cost for delivering all the orders that are in the list of order numbers in the argument
+&nbsp;     * @param OrderNos the list of order numbers
+&nbsp;     * @return the total cost for delivering all of those orders, including the standard delivery charge
+&nbsp;     */
+&nbsp;    public static int getTotalChargeForOrders(ArrayList&lt;String&gt; OrderNos){
+<b class="nc">&nbsp;        if(OrderNos == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        int total =0;</b>
+<b class="nc">&nbsp;        int standardDeliveryCharge =50;</b>
+&nbsp;        // goes through each order
+<b class="nc">&nbsp;        for(String order :OrderNos){</b>
+&nbsp;            // gets the list of items in that order
+<b class="nc">&nbsp;            ArrayList&lt;String&gt; items = Orders.items.get(order);</b>
+<b class="nc">&nbsp;            total = total+standardDeliveryCharge;</b>
+&nbsp;            // adds the price for each item ordered to the total
+<b class="nc">&nbsp;            for(String item:items){</b>
+<b class="nc">&nbsp;                total = total+ prices.get(item);</b>
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return total;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method gets the total cost for delivering a single order
+&nbsp;     * @param order the order number that it is computing the cost for
+&nbsp;     * @return the cost for delivering that order,including the standard delivery charge
+&nbsp;     */
+&nbsp;    public static int getChargeForOneOrder(String order){
+<b class="nc">&nbsp;        if(order == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        int total = 50;</b>
+&nbsp;        //gets the list of items in that order
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; items = Orders.items.get(order);</b>
+&nbsp;        //adds each items price to the total
+<b class="nc">&nbsp;        for(String item : items){</b>
+<b class="nc">&nbsp;            total = total + prices.get(item);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return total;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

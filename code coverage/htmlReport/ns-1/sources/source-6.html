@@ -1,0 +1,281 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > GeoJsonParser</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: GeoJsonParser (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GeoJsonParser</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/55)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import com.mapbox.geojson.*;
+&nbsp;import org.w3c.dom.Node;
+&nbsp;
+&nbsp;import java.io.File;
+&nbsp;import java.io.FileWriter;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;
+&nbsp;import java.net.URI;
+&nbsp;import java.net.http.HttpClient;
+&nbsp;import java.net.http.HttpRequest;
+&nbsp;import java.net.http.HttpResponse;
+&nbsp;
+&nbsp;import java.nio.file.Paths;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.HashSet;
+&nbsp;import java.util.List;
+&nbsp;
+<b class="nc">&nbsp;public class GeoJsonParser {</b>
+&nbsp;
+&nbsp;
+&nbsp;    //Public Variables.................................................................................................
+&nbsp;
+&nbsp;    /**
+&nbsp;     * list of featues which are the no fly zones that the dron cannot pass into
+&nbsp;     */
+&nbsp;    public static List&lt;Feature&gt; noFlyZoneFeatures;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * a list of features which are the landmarks on the map
+&nbsp;     */
+&nbsp;    public static List&lt;Feature&gt; landmarkFeatures;
+&nbsp;
+&nbsp;
+&nbsp;    //Private Variables.................................................................................................
+&nbsp;    /**
+&nbsp;     * the HTTPClient used for accessing the webserver
+&nbsp;     */
+<b class="nc">&nbsp;    private static final HttpClient client = HttpClient.newHttpClient();</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the Url String which is the Url for the no fly zones in the webserver
+&nbsp;     */
+<b class="nc">&nbsp;    private static final String urlStringNoFlyZones = &quot;http://localhost:&quot;+App.webServerPort+&quot;/buildings/no-fly-zones.geojson&quot;;</b>
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the url string which is the url for the landmarks in the webserver.
+&nbsp;     */
+<b class="nc">&nbsp;    private static final String urlStringLandmarks = &quot;http://localhost:&quot;+App.webServerPort+&quot;/buildings/landmarks.geojson&quot;;</b>
+&nbsp;
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Public Methods that can be accessed by other classes
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method accesses the webserver and parses the noFlyZone geojson. each feature which represents a no fly zone
+&nbsp;     * polygon is then stored in a list as the public variable &quot;noFlyZoneFeatures&quot;
+&nbsp;     */
+&nbsp;    public static void getNoFlyZones(){
+&nbsp;        try{
+&nbsp;            //the request that would be sent to the website as a http request
+<b class="nc">&nbsp;            HttpRequest request = HttpRequest.newBuilder()</b>
+<b class="nc">&nbsp;                    .uri(URI.create(urlStringNoFlyZones))</b>
+<b class="nc">&nbsp;                    .build();</b>
+&nbsp;            //once we sent the request, we save the response in &quot;response&quot;
+<b class="nc">&nbsp;            HttpResponse&lt;String&gt; response =</b>
+<b class="nc">&nbsp;                    client.send(request, HttpResponse.BodyHandlers.ofString());</b>
+&nbsp;            //check the status code to check if the request had failed or not
+<b class="nc">&nbsp;            if(response.statusCode()!=200){</b>
+<b class="nc">&nbsp;                System.out.println(&quot;Fatal error: Unable to connect to server at port &quot; + App.webServerPort + &quot;.&quot;);</b>
+<b class="nc">&nbsp;                System.exit(1); // Exit the application</b>
+&nbsp;
+&nbsp;            }
+&nbsp;            //the contents of the file is parsed to a feature collection
+<b class="nc">&nbsp;            FeatureCollection featureCollection = FeatureCollection.fromJson(response.body());</b>
+&nbsp;            //each feature in the feature collection is store in noFlyZoneFeatures
+<b class="nc">&nbsp;            noFlyZoneFeatures = featureCollection.features();</b>
+&nbsp;            //catches any IO Exception or interrupted exception and prints the error.
+<b class="nc">&nbsp;        }catch (IOException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;IOException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }catch (InterruptedException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;InterruptedException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     *the method accesses the webserver and parses the Landmarks geojson. each feature which represents a landmark
+&nbsp;     * point is then stored in a list as the public variable &quot;landmarkFeatures&quot;
+&nbsp;     */
+&nbsp;    public static void getLandmarks(){
+&nbsp;        try{
+&nbsp;            //the request that would be sent to the website as a http request
+<b class="nc">&nbsp;            HttpRequest request = HttpRequest.newBuilder()</b>
+<b class="nc">&nbsp;                    .uri(URI.create(urlStringLandmarks))</b>
+<b class="nc">&nbsp;                    .build();</b>
+&nbsp;            //once we sent the request, we save the response in &quot;response&quot;
+<b class="nc">&nbsp;            HttpResponse&lt;String&gt; response =</b>
+<b class="nc">&nbsp;                    client.send(request, HttpResponse.BodyHandlers.ofString());</b>
+&nbsp;            //check the status code to check if the request had failed or not
+<b class="nc">&nbsp;            if(response.statusCode()!=200){</b>
+<b class="nc">&nbsp;                System.out.println(&quot;Fatal error: Unable to connect to server at port &quot; + App.webServerPort + &quot;.&quot;);</b>
+<b class="nc">&nbsp;                System.exit(1); // Exit the application</b>
+&nbsp;
+&nbsp;            }
+&nbsp;            //the contents of the file is parsed to a feature collection
+<b class="nc">&nbsp;            FeatureCollection featureCollection = FeatureCollection.fromJson(response.body());</b>
+&nbsp;            // each feature is stored in a list as the variable landmarkFeatures.
+<b class="nc">&nbsp;            landmarkFeatures = featureCollection.features();</b>
+&nbsp;            //catches any IO Exception or interrupted exception and prints the error.
+<b class="nc">&nbsp;        }catch (IOException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;IOException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }catch (InterruptedException e){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;InterruptedException &quot; + e.getMessage());</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * given a list of moves made by the drone. the method parses the moves to a feature collection and then to a JSON String
+&nbsp;     * so that the flight path
+&nbsp;     * of the drone can be viewed on geojson.io
+&nbsp;     * @param moves a list of moves made by the drone
+&nbsp;     * @return a Json string which is the feature collection representing the movements made by the drone
+&nbsp;     */
+&nbsp;    public static String movesToFCCollection(List&lt;LongLat&gt; moves){
+<b class="nc">&nbsp;        if(moves==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        List&lt;Point&gt; pointList = new ArrayList&lt;&gt;();</b>
+&nbsp;        //each location in the moves list is converted to a geojson point and added to a list
+<b class="nc">&nbsp;        for (LongLat move : moves) {</b>
+<b class="nc">&nbsp;            pointList.add(move.point);</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;        // the list of points is parsed to a lineString and then a geometry object
+<b class="nc">&nbsp;        Geometry geometry = (Geometry) LineString.fromLngLats(pointList);</b>
+&nbsp;        // the geometry object is converted to a feature and that feature is then converted to a feauture collection
+<b class="nc">&nbsp;        FeatureCollection fc = FeatureCollection.fromFeature(Feature.fromGeometry(geometry));</b>
+&nbsp;        // the JSON String of the feature collection is returned
+<b class="nc">&nbsp;        return fc.toJson();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method creates a geojson file in the current working directory and writes the json string of the feature collection
+&nbsp;     * of the movements of the drone to it.
+&nbsp;     * @param fc the json string of the feature collection of the movements of the drone.
+&nbsp;     */
+&nbsp;    public static void outputGeoJsonFile(String fc){
+<b class="nc">&nbsp;        if(fc == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+&nbsp;        //creates a new GeoJson file in the current working directory(windows)
+<b class="nc">&nbsp;        File gj = new File(Paths.get(&quot;.&quot;).toAbsolutePath().normalize().toString() +&quot;\\drone-&quot;+App.day+&quot;-&quot;+App.month+&quot;-&quot;+App.year+&quot;.geojson&quot;);</b>
+&nbsp;        //linux
+<b class="nc">&nbsp;        if(!gj.exists()){</b>
+<b class="nc">&nbsp;            gj =new File(Paths.get(&quot;.&quot;).toAbsolutePath().normalize().toString() +&quot;/drone-&quot;+App.day+&quot;-&quot;+App.month+&quot;-&quot;+App.year+&quot;.geojson&quot;);</b>
+&nbsp;        }
+&nbsp;        try{
+&nbsp;            //tries to write the json string to the file that was just created
+<b class="nc">&nbsp;            FileWriter writer = new FileWriter(&quot;drone-&quot;+App.day+&quot;-&quot;+App.month+&quot;-&quot;+App.year+&quot;.geojson&quot;);</b>
+<b class="nc">&nbsp;            writer.write(fc);</b>
+<b class="nc">&nbsp;            writer.close();</b>
+&nbsp;        // the method catches any errors that might get thrown.
+<b class="nc">&nbsp;        }catch (IOException e){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;IO Exception Erroe&quot;);</b>
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

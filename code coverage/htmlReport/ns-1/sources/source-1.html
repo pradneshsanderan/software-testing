@@ -1,0 +1,297 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > ApacheDatabase</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: ApacheDatabase (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ApacheDatabase</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/6)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/82)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import java.sql.*;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.List;
+&nbsp;
+<b class="nc">&nbsp;public class ApacheDatabase {</b>
+&nbsp;    //Variables Used by the Method
+&nbsp;
+&nbsp;    /**
+&nbsp;     * The JDBC String Used to access the database. The Database Port is received as an input when the program is ran
+&nbsp;     */
+<b class="nc">&nbsp;    private static final String jdbcString = &quot;jdbc:derby://localhost:&quot;+ App.databasePort+&quot;/derbyDB&quot;;</b>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Public Methods that can be used by other classes
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method used the create the &quot;deliveries&quot; database. The method first checks if a deliveries database already
+&nbsp;     * exits. if it does then it deletes it and creates a new database. It then populates the database with the deliveries
+&nbsp;     * information that it gets from getDeliveryList(). if it encounters an sql error, it throws the error.
+&nbsp;     */
+&nbsp;    public static void createDeliveriesDatabase(){
+&nbsp;        try{
+<b class="nc">&nbsp;            Connection conn = DriverManager.getConnection(jdbcString);</b>
+&nbsp;            // Create a statement object that we can use for running various
+&nbsp;            // SQL statement commands against the database.
+<b class="nc">&nbsp;            Statement statement = conn.createStatement();</b>
+<b class="nc">&nbsp;            DatabaseMetaData databaseMetadata = conn.getMetaData();</b>
+<b class="nc">&nbsp;            ResultSet resultSet = databaseMetadata.getTables(null, null, &quot;DELIVERIES&quot;, null);</b>
+&nbsp;            // If the resultSet is not empty then the table exists, so we can drop it
+<b class="nc">&nbsp;            if (resultSet.next()) {</b>
+<b class="nc">&nbsp;                statement.execute(&quot;drop table deliveries&quot;);</b>
+&nbsp;            }
+&nbsp;            //create the deliveries database
+<b class="nc">&nbsp;            statement.execute(</b>
+&nbsp;                    &quot;create table deliveries(&quot; +
+&nbsp;                            &quot;orderNo char(8), &quot; +
+&nbsp;                            &quot;deliveredTo varchar(19), &quot; +
+&nbsp;                            &quot;costInPence int)&quot;);
+<b class="nc">&nbsp;            PreparedStatement psDeliveries = conn.prepareStatement(&quot;insert into deliveries values (?, ?, ?)&quot;);</b>
+&nbsp;            // get the list of delivery objects
+<b class="nc">&nbsp;            ArrayList&lt;Deliveries&gt; deliveries = getDeliveryList();</b>
+&nbsp;            // add each object to the table
+<b class="nc">&nbsp;            for (Deliveries delivery : deliveries) {</b>
+<b class="nc">&nbsp;                psDeliveries.setString(1, delivery.orderNo);</b>
+<b class="nc">&nbsp;                psDeliveries.setString(2, delivery.deliveredTo);</b>
+<b class="nc">&nbsp;                psDeliveries.setInt(3, delivery.costInPence);</b>
+<b class="nc">&nbsp;                psDeliveries.execute();</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;        //catch any exceptions that might get thrown
+<b class="nc">&nbsp;        }catch(java.sql.SQLException e){</b>
+<b class="nc">&nbsp;            System.err.println(e);</b>
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     *the method used the create the &quot;flightpath&quot; database. The method first checks if a flightpath database already
+&nbsp;     * exits. if it does then it deletes it and creates a new database. It then populates the database with the flightpath
+&nbsp;     * information that it gets from createFlightPathsList(). if it encounters an sql error, it throws the error.
+&nbsp;     * @param moves a list of moves taken by the drone to make the deliveries. Each move is recorded in the database
+&nbsp;     */
+&nbsp;    public static void createFlightPathDatabase(List&lt;LongLat&gt; moves){
+<b class="nc">&nbsp;        if(moves==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+&nbsp;        try{
+<b class="nc">&nbsp;            Connection conn = DriverManager.getConnection(jdbcString);</b>
+&nbsp;            // Create a statement object that we can use for running various
+&nbsp;            // SQL statement commands against the database.
+<b class="nc">&nbsp;            Statement statement = conn.createStatement();</b>
+<b class="nc">&nbsp;            DatabaseMetaData databaseMetadata = conn.getMetaData();</b>
+<b class="nc">&nbsp;            ResultSet resultSet = databaseMetadata.getTables(null, null, &quot;FLIGHTPATH&quot;, null);</b>
+&nbsp;            // If the resultSet is not empty then the table exists, so we can drop it
+<b class="nc">&nbsp;            if (resultSet.next()) {</b>
+<b class="nc">&nbsp;                statement.execute(&quot;drop table flightpath&quot;);</b>
+&nbsp;            }
+&nbsp;            //create the flightpath table
+<b class="nc">&nbsp;            statement.execute(</b>
+&nbsp;                    &quot;create table flightpath(&quot; +
+&nbsp;                            &quot;orderNo char(8), &quot; +
+&nbsp;                            &quot;fromLongitude double, &quot; +
+&nbsp;                            &quot;fromLatitude double, &quot;+
+&nbsp;                            &quot;angle integer, &quot;+
+&nbsp;                            &quot;toLongitude double, &quot;+
+&nbsp;                            &quot;toLatitude double)&quot;);
+<b class="nc">&nbsp;            PreparedStatement psFlightPaths = conn.prepareStatement(&quot;insert into flightpath values (?, ?, ?, ?, ?, ?)&quot;);</b>
+&nbsp;            // get the list of flightpath objects
+<b class="nc">&nbsp;            ArrayList&lt;FlightPath&gt; flightPaths = createFlightPathsList(moves);</b>
+&nbsp;            // we add each obejct into the table
+<b class="nc">&nbsp;            for (FlightPath flightPath : flightPaths) {</b>
+<b class="nc">&nbsp;                psFlightPaths.setString(1, flightPath.orderNo);</b>
+<b class="nc">&nbsp;                psFlightPaths.setDouble(2, flightPath.fromLongitude);</b>
+<b class="nc">&nbsp;                psFlightPaths.setDouble(3, flightPath.fromLatitude);</b>
+<b class="nc">&nbsp;                psFlightPaths.setInt(4, flightPath.angle);</b>
+<b class="nc">&nbsp;                psFlightPaths.setDouble(5, flightPath.toLongitude);</b>
+<b class="nc">&nbsp;                psFlightPaths.setDouble(6, flightPath.toLatitude);</b>
+<b class="nc">&nbsp;                psFlightPaths.execute();</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;        //catch any exceptions that might get thrown
+<b class="nc">&nbsp;        }catch(java.sql.SQLException e){</b>
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Private Methods that are helper methods to the main methods
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method checks which orders were completed for the day and based on the delivery class, it creates a list of deliveries.
+&nbsp;     * the list consists of the orders that were completed for the day which includes the order number, where it was delivered to and
+&nbsp;     * how its cost to deliver the order
+&nbsp;     * @return the list of deliveries completed for the day
+&nbsp;     */
+&nbsp;    private static ArrayList&lt;Deliveries&gt; getDeliveryList(){
+&nbsp;        //a list of all the orders completed on that day since not all orders are usually completed
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; orders = HexGraph.OrdersCompleted;</b>
+<b class="nc">&nbsp;        ArrayList&lt;Deliveries&gt; deliveries = new ArrayList&lt;&gt;();</b>
+&nbsp;        //run the get prices method in the Menus class to get the price for each item on the menu
+<b class="nc">&nbsp;        Menus.getPrices();</b>
+<b class="nc">&nbsp;        for(String order: orders){</b>
+&nbsp;            //for each order, we create a new delivery object and add it to the list.
+<b class="nc">&nbsp;            Deliveries d = new Deliveries();</b>
+<b class="nc">&nbsp;            d.orderNo = order;</b>
+&nbsp;            // we get the delivery address from the deliveryAddress hashmap in the Orders class
+<b class="nc">&nbsp;            d.deliveredTo = Orders.deliveryAddress.get(order);</b>
+&nbsp;            // we get the cost for each delivery from the getChargeForOneOrder() method in the menus class
+<b class="nc">&nbsp;            d.costInPence = Menus.getChargeForOneOrder(order);</b>
+<b class="nc">&nbsp;            deliveries.add(d);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return deliveries;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method creates a list of flightpath moves where each moves corresponds to a move that the drone made in delivering the
+&nbsp;     * orders for the day. the method gets a list of moves mades by the drone when delivering the orders and parses it according to
+&nbsp;     * the flightpath class. it then adds the move to a list of moves and returns that list to be added to the database
+&nbsp;     * @param moves the moves(positions) made by the drone in delivering the orders.
+&nbsp;     * @return the list of moves that have been parsed according to the FlightPath Class.
+&nbsp;     */
+&nbsp;    private static ArrayList&lt;FlightPath&gt; createFlightPathsList (List&lt;LongLat&gt; moves){
+<b class="nc">&nbsp;        if(moves==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        ArrayList&lt;FlightPath&gt; flightPaths = new ArrayList&lt;&gt;();</b>
+&nbsp;        //indexes which show when the drone was hovering and not moving
+<b class="nc">&nbsp;        ArrayList&lt;Integer&gt; hoverLocations = HexGraph.HoverLocation;</b>
+&nbsp;        //the first order that was delivered by the drone
+<b class="nc">&nbsp;        String currOrder = HexGraph.OrderNumberChanges.get(0);</b>
+&nbsp;        // traverse through every move made by the drone
+<b class="nc">&nbsp;        for(int currMove=1;currMove&lt;moves.size();currMove++){</b>
+<b class="nc">&nbsp;            FlightPath f = new FlightPath();</b>
+&nbsp;            //if the hashmap contains the index, it means that the drone is delivering the next order so currOrder must be updated
+<b class="nc">&nbsp;            if(HexGraph.OrderNumberChanges.containsKey(currMove)){</b>
+<b class="nc">&nbsp;                currOrder = HexGraph.OrderNumberChanges.get(currMove);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            f.orderNo = currOrder;</b>
+&nbsp;            //we get the coordinates of the the previous location
+<b class="nc">&nbsp;            f.fromLatitude = moves.get(currMove-1).latitude;</b>
+<b class="nc">&nbsp;            f.fromLongitude = moves.get(currMove-1).longitude;</b>
+&nbsp;            //if the list contains the index,then we are currently hovering so the angle must be the junk value of -999
+<b class="nc">&nbsp;            if(hoverLocations.contains(currMove)){</b>
+<b class="nc">&nbsp;                f.angle=-999;</b>
+&nbsp;            }
+&nbsp;            else{
+<b class="nc">&nbsp;                f.angle=moves.get(currMove-1).angleDirectionTo(moves.get(currMove));</b>
+&nbsp;            }
+&nbsp;            // we get the coordinates of the current location
+<b class="nc">&nbsp;            f.toLatitude = moves.get(currMove).latitude;</b>
+<b class="nc">&nbsp;            f.toLongitude = moves.get(currMove).longitude;</b>
+&nbsp;            //add this flightpath to the list of flightpath
+<b class="nc">&nbsp;            flightPaths.add(f);</b>
+&nbsp;        }
+&nbsp;        // the last move would be to return to appleton. at this step we would have already moved to appleton so all that is left is to hover it down to the roof.
+<b class="nc">&nbsp;        FlightPath f = new FlightPath();</b>
+<b class="nc">&nbsp;        f.orderNo=currOrder;</b>
+<b class="nc">&nbsp;        f.toLongitude = moves.get(moves.size()-1).longitude;</b>
+<b class="nc">&nbsp;        f.toLatitude = moves.get(moves.size()-1).latitude;</b>
+<b class="nc">&nbsp;        f.fromLongitude = moves.get(moves.size()-1).longitude;</b>
+<b class="nc">&nbsp;        f.fromLatitude = moves.get(moves.size()-1).latitude;</b>
+<b class="nc">&nbsp;        f.angle = -999;</b>
+<b class="nc">&nbsp;        flightPaths.add(f);</b>
+&nbsp;        //return the list of flightpaths
+<b class="nc">&nbsp;        return flightPaths;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

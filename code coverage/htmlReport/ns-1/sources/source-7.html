@@ -1,0 +1,676 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > HexGraph</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: HexGraph (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">HexGraph</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/258)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import org.jgrapht.Graph;
+&nbsp;import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+&nbsp;import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;
+<b class="nc">&nbsp;public class HexGraph {</b>
+&nbsp;
+&nbsp;
+&nbsp;    //public variable
+&nbsp;    /**
+&nbsp;     * the list of order numbers of orders that the drone was able to complete for the day
+&nbsp;     */
+<b class="nc">&nbsp;    public static ArrayList&lt;String&gt; OrdersCompleted = new ArrayList&lt;&gt;();</b>
+&nbsp;    /**
+&nbsp;     * a list of integers that represent the index of the movements in the drones movements when the drone was hovering
+&nbsp;     */
+<b class="nc">&nbsp;    public static ArrayList&lt;Integer&gt; HoverLocation= new ArrayList&lt;&gt;();</b>
+&nbsp;    /**
+&nbsp;     * a hashmap that maps an integer index to the order number string. the integer represents the index in the movement of the drone when
+&nbsp;     * the drone has moved on to the next order
+&nbsp;     */
+<b class="nc">&nbsp;    public static HashMap&lt;Integer,String&gt; OrderNumberChanges = new HashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;    //private variable
+&nbsp;    /**
+&nbsp;     * the height of the triangles created in the graph.
+&nbsp;     */
+<b class="nc">&nbsp;    private static final double heightOfTriangle = Math.sqrt(Math.pow(LongLat.oneMove,2) - Math.pow(LongLat.oneMove/2,2));</b>
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Public Methods
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method gets the shortest route across a custom graph that would allow the drone to complete the orders. it first
+&nbsp;     * build an equilateral triangle graph where each edge of the triangle is 1 move by the drone. the drone can move in 6 different directions
+&nbsp;     * from a certain node. the method then used dijikstras algorithm to find the shortest path between the current position and the pick up
+&nbsp;     * nodes and then the delivery nodes. while the drone still has moves and has not run out of battery, this continues. the movements of the drone
+&nbsp;     * are added to a list of LongLat positions. the drones hover locations and index of the movements where it completes an order are also recorded .
+&nbsp;     * @param drone the number of moves that the drone can move is gotten from the drone object
+&nbsp;     * @return the list of positions the drone was in which correspond to its route around the map
+&nbsp;     */
+&nbsp;    public static List&lt;LongLat&gt; getRoute(Drone drone){
+<b class="nc">&nbsp;        if(drone==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Drone cannot be null&quot;);</b>
+&nbsp;        }
+&nbsp;        // generates a graph of equilateral triangles
+<b class="nc">&nbsp;        Graph&lt;LongLat,NodeEdges&gt; g = HexGraph.genValidHexGraph();</b>
+&nbsp;        //gets the nodes that are closest to each delivery coordinate
+<b class="nc">&nbsp;        HashMap&lt;String,LongLat&gt; delivery =HexGraph.getDeliveryNodes(g);</b>
+&nbsp;        // gets the nodes that are closest to each pickup coordinate
+<b class="nc">&nbsp;        HashMap&lt;String,ArrayList&lt;LongLat&gt;&gt; pickup = getPickUpNodes(g);</b>
+&nbsp;        //gets the order of the Orders by a certain TSP algorithm. the tsp can be changed by replacing the greedyApproach below
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; orders = greedyApproach(Orders.items);</b>
+&nbsp;        // gets the node of the starting location
+<b class="nc">&nbsp;        LongLat appleton = getAppleton(g);</b>
+<b class="nc">&nbsp;        List&lt;LongLat&gt; movements = new ArrayList&lt;&gt;();</b>
+&nbsp;        // dijikstras algorithm is used, if you want to use A* instead, comment this line and uncomment the A* lines
+<b class="nc">&nbsp;        DijkstraShortestPath&lt;LongLat,NodeEdges&gt; d= new DijkstraShortestPath&lt;LongLat,NodeEdges&gt;(g);</b>
+&nbsp;//        AStarAdmissibleHeuristic&lt;LongLat&gt; n= new AStarAdmissibleHeuristic&lt;LongLat&gt;() {
+&nbsp;//            @Override
+&nbsp;//            public double getCostEstimate(LongLat longLat, LongLat v1) {
+&nbsp;//                return longLat.distanceTo(v1);
+&nbsp;//            }
+&nbsp;//        };
+&nbsp;//
+&nbsp;//        AStarShortestPath&lt;LongLat,NodeEdges&gt; aStarShortestPath = new AStarShortestPath&lt;LongLat,NodeEdges&gt;(g,n);
+&nbsp;        //gets the number of moves from the drone object
+<b class="nc">&nbsp;        int movesLeft = drone.MovesLeft;</b>
+&nbsp;        // the drone hover off appleton
+<b class="nc">&nbsp;        HoverLocation.add(0);</b>
+<b class="nc">&nbsp;        movesLeft--;</b>
+&nbsp;        //we move to the first order
+<b class="nc">&nbsp;        OrderNumberChanges.put(0,orders.get(0));</b>
+<b class="nc">&nbsp;        assert appleton != null;</b>
+&nbsp;        //it completes the first order if it only has one pick up location
+<b class="nc">&nbsp;        if(pickup.get(orders.get(0)).size()==1){</b>
+&nbsp;
+&nbsp;            //get the movement from the current location to the pick up location
+<b class="nc">&nbsp;            movements = d.getPath(appleton,pickup.get(orders.get(0)).get(0)).getVertexList();</b>
+&nbsp;            //since we are hovering to pick up, we add the index to the list
+<b class="nc">&nbsp;            HoverLocation.add(movements.size());</b>
+&nbsp;            //remove one move for hovering
+<b class="nc">&nbsp;            movesLeft--;</b>
+&nbsp;            //get the movement from the current location to the delivery location
+<b class="nc">&nbsp;            movements.addAll(d.getPath(pickup.get(orders.get(0)).get(0),delivery.get(orders.get(0))).getVertexList());</b>
+<b class="nc">&nbsp;            HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;            movesLeft--;</b>
+&nbsp;
+&nbsp;            //remove the number of moves it took for this order from moves left
+<b class="nc">&nbsp;            int pickUpmoves =d.getPath(appleton,pickup.get(orders.get(0)).get(0)).getVertexList().size();</b>
+<b class="nc">&nbsp;            int deliverMoves = d.getPath(pickup.get(orders.get(0)).get(0),delivery.get(orders.get(0))).getVertexList().size();</b>
+<b class="nc">&nbsp;            movesLeft = movesLeft- pickUpmoves-deliverMoves;</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;        //it completes the first order if it has 2 pick up locations
+&nbsp;        else{
+&nbsp;            //get the movement from the current location to the pick up location
+<b class="nc">&nbsp;            movements = d.getPath(appleton,pickup.get(orders.get(0)).get(0)).getVertexList();</b>
+&nbsp;
+<b class="nc">&nbsp;            HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;            movesLeft--;</b>
+&nbsp;            //get the movement from the current location to the next pick up location
+<b class="nc">&nbsp;            movements.addAll(d.getPath(pickup.get(orders.get(0)).get(0),pickup.get(orders.get(0)).get(1)).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;            HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;            movesLeft--;</b>
+&nbsp;            //get the movement from the current location to the delivery location
+<b class="nc">&nbsp;            movements.addAll(d.getPath(pickup.get(orders.get(0)).get(1),delivery.get(orders.get(0))).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;            HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;            movesLeft--;</b>
+&nbsp;            //remove the number of moves it took for this order from moves left
+<b class="nc">&nbsp;            int pickUpMoves = d.getPath(appleton,pickup.get(orders.get(0)).get(0)).getVertexList().size() + d.getPath(pickup.get(orders.get(0)).get(0),pickup.get(orders.get(0)).get(1)).getVertexList().size();</b>
+<b class="nc">&nbsp;            int deliverMoves = d.getPath(pickup.get(orders.get(0)).get(1),delivery.get(orders.get(0))).getVertexList().size();</b>
+<b class="nc">&nbsp;            movesLeft = movesLeft-pickUpMoves-deliverMoves;</b>
+&nbsp;        }
+&nbsp;        //add the order number to the list since we have completed it
+<b class="nc">&nbsp;        OrdersCompleted.add(orders.get(0));</b>
+<b class="nc">&nbsp;        int pointer =0;</b>
+&nbsp;        //go through each order
+<b class="nc">&nbsp;        for(int i=1;i&lt;orders.size();i++){</b>
+&nbsp;            //if there is one pick up location
+<b class="nc">&nbsp;            if(pickup.get(orders.get(i)).size()==1){</b>
+<b class="nc">&nbsp;                int pickUpMoves = d.getPath(delivery.get(orders.get(i-1)),pickup.get(orders.get(i)).get(0)).getVertexList().size();</b>
+<b class="nc">&nbsp;                int deliveryMove = d.getPath(pickup.get(orders.get(i)).get(0),delivery.get(orders.get(i))).getVertexList().size();</b>
+<b class="nc">&nbsp;                int returnHomeMoves = d.getPath(delivery.get(orders.get(i)),appleton).getVertexList().size();</b>
+<b class="nc">&nbsp;                int hoverMoves = 2;</b>
+&nbsp;                // we first check if we have enough moves left tp complete the order and make it back to appleton. if we cant then we skip the order and move to the next
+<b class="nc">&nbsp;                if(movesLeft-hoverMoves-pickUpMoves-deliveryMove-returnHomeMoves&gt;=0){</b>
+<b class="nc">&nbsp;                    OrderNumberChanges.put(movements.size(),orders.get(i));</b>
+<b class="nc">&nbsp;                    movements.addAll(d.getPath(delivery.get(orders.get(i-1)),pickup.get(orders.get(i)).get(0)).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;                    HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;                    movements.addAll(d.getPath(pickup.get(orders.get(i)).get(0),delivery.get(orders.get(i))).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;                    HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;                    movesLeft = movesLeft-pickUpMoves-deliveryMove-hoverMoves;</b>
+<b class="nc">&nbsp;                    pointer =i;</b>
+<b class="nc">&nbsp;                    OrdersCompleted.add(orders.get(i));</b>
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;            }</b>
+&nbsp;            // if there is 2 pick up location
+&nbsp;            else{
+<b class="nc">&nbsp;                int pickUpMoves = d.getPath(delivery.get(orders.get(i-1)),pickup.get(orders.get(i)).get(0)).getVertexList().size()+d.getPath(pickup.get(orders.get(i)).get(0),pickup.get(orders.get(i)).get(1)).getVertexList().size();</b>
+<b class="nc">&nbsp;                int deliveryMove = d.getPath(pickup.get(orders.get(i)).get(1),delivery.get(orders.get(i))).getVertexList().size();</b>
+<b class="nc">&nbsp;                int returnHomeMoves = d.getPath(delivery.get(orders.get(i)),appleton).getVertexList().size();</b>
+<b class="nc">&nbsp;                int hoverMoves = 3;</b>
+&nbsp;                // we first check if we have enough moves left tp complete the order and make it back to appleton. if we cant then we skip the order and move to the next
+<b class="nc">&nbsp;                if(movesLeft-hoverMoves-pickUpMoves-deliveryMove-returnHomeMoves&gt;=0){</b>
+<b class="nc">&nbsp;                    OrderNumberChanges.put(movements.size(),orders.get(i));</b>
+<b class="nc">&nbsp;                    movements.addAll(d.getPath(delivery.get(orders.get(i-1)),pickup.get(orders.get(i)).get(0)).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;                    HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;                    movements.addAll(d.getPath(pickup.get(orders.get(i)).get(0),pickup.get(orders.get(i)).get(1)).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;                    HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;                    movements.addAll(d.getPath(pickup.get(orders.get(i)).get(1),delivery.get(orders.get(i))).getVertexList());</b>
+&nbsp;
+<b class="nc">&nbsp;                    HoverLocation.add(movements.size());</b>
+<b class="nc">&nbsp;                    movesLeft = movesLeft-pickUpMoves-deliveryMove-hoverMoves;</b>
+<b class="nc">&nbsp;                    pointer=i;</b>
+<b class="nc">&nbsp;                    OrdersCompleted.add(orders.get(i));</b>
+&nbsp;                }
+&nbsp;
+&nbsp;            }
+&nbsp;        }
+&nbsp;        //we move back to appleton roof and hover down
+<b class="nc">&nbsp;        movements.addAll(d.getPath(delivery.get(orders.get(pointer)),appleton).getVertexList());</b>
+<b class="nc">&nbsp;        drone.MovesLeft =movesLeft;</b>
+&nbsp;        //return the list of drone locations which correspond to the movement of the drone
+<b class="nc">&nbsp;        return movements;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //Different Travelling SalesPerson approaches
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method find the order with the nearest pick up location to the drones current location and completes that order. it then
+&nbsp;     * finds the next nearest pick up location and so on.it orders the order numbers accordingly
+&nbsp;     * @param g the graph of equilateral triangles for the drone to traverse
+&nbsp;     * @param pickUpNodes the nodes that are closeto the coordinates of the shops the drone has to visit
+&nbsp;     * @param deliveryNodes the nodes that are closeto the delivery coordinates that for each order
+&nbsp;     * @return a sorted list of order numbers
+&nbsp;     */
+&nbsp;    public static ArrayList&lt;String&gt; nearestNeighbourApproach(Graph&lt;LongLat,NodeEdges&gt; g,HashMap&lt;String,ArrayList&lt;LongLat&gt;&gt; pickUpNodes,HashMap&lt;String,LongLat&gt; deliveryNodes){
+<b class="nc">&nbsp;        if(g==null || pickUpNodes == null || deliveryNodes == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null. please check the inputs&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; orders = Orders.orderNos;</b>
+<b class="nc">&nbsp;        Menus.getPrices();</b>
+&nbsp;        // gets the starting nodes coordinates
+<b class="nc">&nbsp;        LongLat appleton = getAppleton(g);</b>
+&nbsp;        // if we cant find appleton&#39;s node
+<b class="nc">&nbsp;        if(appleton == null){</b>
+<b class="nc">&nbsp;            System.out.println(&quot;Could not associate start location with a node on the map&quot;);</b>
+<b class="nc">&nbsp;            appleton = LongLat.appleton;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; sortedOrders = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        String closest = null;</b>
+<b class="nc">&nbsp;        int ind = 0;</b>
+<b class="nc">&nbsp;        double dist = Double.MAX_VALUE;</b>
+&nbsp;        //first find the order that has the pick up node closest to appleton
+<b class="nc">&nbsp;        for(String order:orders){</b>
+<b class="nc">&nbsp;            ArrayList&lt;LongLat&gt; currentNodes = pickUpNodes.get(order);</b>
+<b class="nc">&nbsp;            for(int i=0;i&lt;currentNodes.size();i++){</b>
+<b class="nc">&nbsp;                if(appleton.distanceTo(currentNodes.get(i))&lt;dist){</b>
+<b class="nc">&nbsp;                    closest = order;</b>
+<b class="nc">&nbsp;                    dist = appleton.distanceTo(currentNodes.get(i));</b>
+<b class="nc">&nbsp;                    ind=i;</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;        //while not all of the order number has been added to the list of sorted orders. find the order with the pick up location that is closest
+&nbsp;        // to the current location and is not already in the list of sorted orders.
+<b class="nc">&nbsp;        sortedOrders.add(closest);</b>
+<b class="nc">&nbsp;        while (sortedOrders.size()!=orders.size()){</b>
+<b class="nc">&nbsp;            closest = null;</b>
+<b class="nc">&nbsp;            ind = 0;</b>
+<b class="nc">&nbsp;            dist = Double.MAX_VALUE;</b>
+<b class="nc">&nbsp;            for(String order:orders){</b>
+&nbsp;                //check if the order is already in the list
+<b class="nc">&nbsp;                if(!sortedOrders.contains(order)){</b>
+&nbsp;                    //list of shop nodes to pick up from
+<b class="nc">&nbsp;                    ArrayList&lt;LongLat&gt; currentNodes = pickUpNodes.get(order);</b>
+&nbsp;                    // goes through each node and checks if any of them are closest. if they are, update the closest variable
+<b class="nc">&nbsp;                    for(int i=0;i&lt;currentNodes.size();i++){</b>
+<b class="nc">&nbsp;                        if(deliveryNodes.get(sortedOrders.get(sortedOrders.size()-1)).distanceTo(currentNodes.get(i))&lt;dist){</b>
+<b class="nc">&nbsp;                            closest = order;</b>
+<b class="nc">&nbsp;                            dist = deliveryNodes.get(sortedOrders.get(sortedOrders.size()-1)).distanceTo(currentNodes.get(i));</b>
+<b class="nc">&nbsp;                            ind=i;</b>
+&nbsp;                        }
+&nbsp;                    }
+&nbsp;                }
+&nbsp;
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;            sortedOrders.add(closest);</b>
+&nbsp;        }
+&nbsp;        //System.out.println(Orders.orderNos);
+<b class="nc">&nbsp;        return sortedOrders;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method is the random approach for the tsp algo. its orders the list of order numbers randomly and returns the list
+&nbsp;     * @return list of randomly sorted order numbers
+&nbsp;     */
+&nbsp;    public static ArrayList&lt;String&gt; randomAppraoch(){
+<b class="nc">&nbsp;        Menus.getPrices();</b>
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; random = new ArrayList&lt;&gt;(Orders.orderNos);</b>
+&nbsp;        //randomly sorts the list
+<b class="nc">&nbsp;        Collections.shuffle(random);</b>
+<b class="nc">&nbsp;        return random;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method uses the greedy approach to the tsp problem where it calculates the cost in delivering each order and then
+&nbsp;     * it prioritises the orders with the higher cost as it makes the most amount of money. so the order with the higher cost will be higher up in the list than
+&nbsp;     * those with the lower cost
+&nbsp;     * @param items the items ordered in each order
+&nbsp;     * @return a sorted list of order numbers
+&nbsp;     */
+&nbsp;    public static ArrayList&lt;String&gt; greedyApproach(HashMap&lt;String,ArrayList&lt;String&gt;&gt; items){
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; sortedOrders = new ArrayList&lt;&gt;();</b>
+&nbsp;        //list of order numbers
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; ord = Orders.orderNos;</b>
+<b class="nc">&nbsp;        String[] orderArray= new String[ord.size()];</b>
+<b class="nc">&nbsp;        int[][] deliveryCosts = new int[ord.size()][2];</b>
+<b class="nc">&nbsp;        Menus.getPrices();</b>
+<b class="nc">&nbsp;        HashMap&lt;String,Integer&gt; itemPrices = Menus.prices;</b>
+<b class="nc">&nbsp;        int i=0;</b>
+&nbsp;        //for each order, get the cost for delivery in pence
+<b class="nc">&nbsp;        for(String order :ord){</b>
+<b class="nc">&nbsp;            int total = Menus.getChargeForOneOrder(order);</b>
+<b class="nc">&nbsp;            deliveryCosts[i][0] = total;</b>
+<b class="nc">&nbsp;            deliveryCosts[i][1] = i;</b>
+<b class="nc">&nbsp;            orderArray[i] = order;</b>
+<b class="nc">&nbsp;            i++;</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;        // sort the arrays by the first element which is the cost of each delivery
+<b class="nc">&nbsp;        Arrays.sort(deliveryCosts, Comparator.comparingDouble(o -&gt; o[0]));</b>
+&nbsp;
+&nbsp;        // sort the orders in descending order
+<b class="nc">&nbsp;        for(int k=deliveryCosts.length-1;k&gt;=0;k--){</b>
+<b class="nc">&nbsp;            int ind = deliveryCosts[k][1];</b>
+<b class="nc">&nbsp;            sortedOrders.add(orderArray[ind]);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return sortedOrders;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    //.................................................................................................................
+&nbsp;    //.................................................................................................................
+&nbsp;    //Private Methods
+&nbsp;    //Building the graph
+&nbsp;
+&nbsp;    /**
+&nbsp;     * checks if the row that appleton is one will be shifted or not. if there are an odd number
+&nbsp;     * of rows from appletons row to the top, then the row is shifted because appletons nodes row
+&nbsp;     * should remain unshifted
+&nbsp;     * @return true if the row is shifted
+&nbsp;     */
+&nbsp;    private static boolean shiftedRow(){
+<b class="nc">&nbsp;        double appletonLat = LongLat.appleton.latitude;</b>
+<b class="nc">&nbsp;        int rowsCounter =0;</b>
+&nbsp;        //counts the number of rows
+<b class="nc">&nbsp;        while(appletonLat&lt;LongLat.confAreaTop){</b>
+<b class="nc">&nbsp;            appletonLat = appletonLat + heightOfTriangle;</b>
+<b class="nc">&nbsp;            rowsCounter++;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return rowsCounter%2==1;</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method finds the locations of the nodes that would be on the graph and stores the Longlat object of the node
+&nbsp;     * in a 2d list. the graph will be hexagonal in shape since the triangles are equilateral and the angles would be 60 degrees. the method
+&nbsp;     * moves from the top left of the confiment area to the bottom right to make sure that all nodes are inside the confinement area
+&nbsp;     * @return a 2d list of Longlat objects stating the position of the nodes on the graph
+&nbsp;     */
+&nbsp;    private static ArrayList&lt;ArrayList&lt;LongLat&gt;&gt; genNodesOnHexGraph(){
+<b class="nc">&nbsp;        ArrayList&lt;ArrayList&lt;LongLat&gt;&gt; nodeLocations = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        boolean shifted = shiftedRow();</b>
+<b class="nc">&nbsp;        double  startLocLong = LongLat.appleton.longitude;</b>
+<b class="nc">&nbsp;        double startLocLat = LongLat.appleton.latitude;</b>
+&nbsp;        //move the point to just out of the flyzone. we use the point from appletons coordinates so that appletons coordinates will always be a node
+<b class="nc">&nbsp;        while(startLocLong&gt;LongLat.confAreaLeft){</b>
+<b class="nc">&nbsp;            startLocLong = startLocLong - LongLat.oneMove;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        while(startLocLat&lt;LongLat.confAreaTop){</b>
+<b class="nc">&nbsp;            startLocLat = startLocLat + heightOfTriangle;</b>
+&nbsp;        }
+&nbsp;        //move from the top  to the bottom  of the confinement area. each move has a distance = heightOfTriangle
+<b class="nc">&nbsp;        for( double currentLat = startLocLat;currentLat&gt;LongLat.confAreaBottom;currentLat = currentLat-heightOfTriangle){</b>
+<b class="nc">&nbsp;            ArrayList&lt;LongLat&gt; currentRow = new ArrayList&lt;&gt;();</b>
+&nbsp;            //move from the left to the right of the confinement area. each move is equal to the distance the drone can move one time
+<b class="nc">&nbsp;            for(double currentLong = startLocLong;currentLong&lt;LongLat.confAreaRight;currentLong = currentLong+LongLat.oneMove){</b>
+<b class="nc">&nbsp;                if(shifted){</b>
+&nbsp;                    //if the row is shifted then we add half a move to it to shift it to the right. the distance remains equal to oneMove
+<b class="nc">&nbsp;                    currentRow.add(new LongLat(currentLong+LongLat.oneMove/2,currentLat));</b>
+&nbsp;                }
+&nbsp;                else{
+&nbsp;                    //if it is not shifted we just add the node
+&nbsp;                    //add the node to the list for that row
+<b class="nc">&nbsp;                    currentRow.add(new LongLat(currentLong,currentLat));</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;            //the next rows value of shifted would be the opposite of what the current row is to form triangles
+<b class="nc">&nbsp;            shifted = !shifted;</b>
+&nbsp;            // add the list to the 2d list
+<b class="nc">&nbsp;            nodeLocations.add(currentRow);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return nodeLocations;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method forms nodeEdges between the nodes on the graph and its neighbour nodes. the nodes are then stored in a hashset
+&nbsp;     * to prevent duplication since its an undirected graph.
+&nbsp;     * @param nodesOnHexGraph the list of all nodes in the graph
+&nbsp;     * @return hashset of node edges
+&nbsp;     */
+&nbsp;    private static HashSet&lt;NodeEdges&gt; genPathOnHexGraoh(ArrayList&lt;ArrayList&lt;LongLat&gt;&gt; nodesOnHexGraph){
+<b class="nc">&nbsp;        if(nodesOnHexGraph == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        HashSet&lt;NodeEdges&gt; pathOnGraph = new HashSet&lt;&gt;();</b>
+&nbsp;        //checks if the row is shifted
+<b class="nc">&nbsp;        boolean shifted= shiftedRow();</b>
+<b class="nc">&nbsp;        int numberOfRows = nodesOnHexGraph.size();</b>
+&nbsp;        //goes through each row
+<b class="nc">&nbsp;        for(int currentRow = 0;currentRow&lt;numberOfRows;currentRow++){</b>
+<b class="nc">&nbsp;            int numberofNodesInColumn = nodesOnHexGraph.get(currentRow).size();</b>
+&nbsp;            //goes through each node in the row
+<b class="nc">&nbsp;            for(int currentNode =0;currentNode&lt;numberofNodesInColumn;currentNode++){</b>
+&nbsp;                //adds an edge from the current node to the node to its left
+<b class="nc">&nbsp;                if(currentNode&gt;0){</b>
+<b class="nc">&nbsp;                    pathOnGraph.add(new NodeEdges(nodesOnHexGraph.get(currentRow).get(currentNode),nodesOnHexGraph.get(currentRow).get(currentNode-1)));</b>
+&nbsp;
+&nbsp;                }
+&nbsp;                //adds an edge from the current node to the node above
+<b class="nc">&nbsp;                if(currentRow&gt;0){</b>
+<b class="nc">&nbsp;                    pathOnGraph.add(new NodeEdges(nodesOnHexGraph.get(currentRow).get(currentNode),nodesOnHexGraph.get(currentRow-1).get(currentNode)));</b>
+&nbsp;
+&nbsp;                }
+<b class="nc">&nbsp;                if(shifted){</b>
+&nbsp;                    //add an edge to the node below and to the right
+<b class="nc">&nbsp;                   if(numberOfRows-1&gt;currentRow &amp;&amp; numberofNodesInColumn-1&gt;currentNode){</b>
+<b class="nc">&nbsp;                       pathOnGraph.add(new NodeEdges(nodesOnHexGraph.get(currentRow).get(currentNode),nodesOnHexGraph.get(currentRow+1).get(currentNode+1)));</b>
+&nbsp;                   }
+&nbsp;                   //add an edge to the node above and right
+<b class="nc">&nbsp;                   if(currentRow&gt;0 &amp;&amp; numberofNodesInColumn-1&gt;currentNode){</b>
+<b class="nc">&nbsp;                       pathOnGraph.add(new NodeEdges(nodesOnHexGraph.get(currentRow).get(currentNode),nodesOnHexGraph.get(currentRow-1).get(currentNode+1)));</b>
+&nbsp;                   }
+&nbsp;
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            shifted = !shifted;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        return pathOnGraph;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method adds all the nodes and nodeEdge between those nodes that was previously found to a graph hence creating
+&nbsp;     * a hexagonal graph with equilateral triangles
+&nbsp;     * @return the hexagonal graph that was created
+&nbsp;     */
+&nbsp;    private static Graph&lt;LongLat,NodeEdges&gt; genDroneHexGraph(){
+&nbsp;        //create an unpopulated graph
+<b class="nc">&nbsp;        DefaultUndirectedWeightedGraph&lt;LongLat,NodeEdges&gt; g = new DefaultUndirectedWeightedGraph&lt;LongLat,NodeEdges&gt;(NodeEdges.class);</b>
+&nbsp;        // list of nodes
+<b class="nc">&nbsp;        ArrayList&lt;ArrayList&lt;LongLat&gt;&gt; nodes = genNodesOnHexGraph();</b>
+&nbsp;        //set of node edges
+<b class="nc">&nbsp;        HashSet&lt;NodeEdges&gt; edges = genPathOnHexGraoh(nodes);</b>
+&nbsp;        // add all of the nodes to the graph
+<b class="nc">&nbsp;        for (ArrayList&lt;LongLat&gt; node : nodes) {</b>
+<b class="nc">&nbsp;            for (LongLat longLat : node) {</b>
+<b class="nc">&nbsp;                g.addVertex(longLat);</b>
+<b class="nc">&nbsp;            }</b>
+<b class="nc">&nbsp;        }</b>
+&nbsp;        // add all of the edges to the graph.the weight of each edge should be one move since the distance is 1 move
+<b class="nc">&nbsp;        for(NodeEdges edge:edges){</b>
+<b class="nc">&nbsp;            g.addEdge(edge.node1,edge.node2,edge);</b>
+<b class="nc">&nbsp;            g.setEdgeWeight(edge,LongLat.oneMove);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return g;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * to get a valid graph, the method removes the nodes and nodeEdges that the drone is not allowed to travel to
+&nbsp;     * for each edge it check if it is in the confinement area and it is not in a no fly zone. if not it removes the node from the graph. for the
+&nbsp;     * edges it checks if they are in the confinement area, not in the no fly zone and does not cross the no fly zone. if not it is also
+&nbsp;     * removed. hence since there are no nodes or edges to travel to it is impossible for the drone to exit the confinement area
+&nbsp;     * or go into the no fly zone
+&nbsp;     * @return
+&nbsp;     */
+&nbsp;    private static Graph&lt;LongLat,NodeEdges&gt; genValidHexGraph(){
+<b class="nc">&nbsp;        Graph&lt;LongLat, NodeEdges&gt; droneHexGraph = genDroneHexGraph();</b>
+<b class="nc">&nbsp;        DefaultUndirectedWeightedGraph&lt;LongLat,NodeEdges&gt; g = new DefaultUndirectedWeightedGraph&lt;LongLat,NodeEdges&gt;(NodeEdges.class);</b>
+<b class="nc">&nbsp;        Set&lt;LongLat&gt; nodes = droneHexGraph.vertexSet();</b>
+<b class="nc">&nbsp;        Set&lt;NodeEdges&gt; edges = droneHexGraph.edgeSet();</b>
+&nbsp;        //checks the nodes
+<b class="nc">&nbsp;        for(LongLat node:nodes){</b>
+&nbsp;            //check if the drone allowed to eb there
+<b class="nc">&nbsp;            if(!node.inNoFlyPolygon() &amp;&amp; node.isConfined()){</b>
+<b class="nc">&nbsp;                g.addVertex(node);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+&nbsp;        //checks the edges
+<b class="nc">&nbsp;        for(NodeEdges edge:edges){</b>
+<b class="nc">&nbsp;            LongLat node1 = edge.node1;</b>
+<b class="nc">&nbsp;            LongLat node2 = edge.node2;</b>
+&nbsp;            //checks if the drone is allowed to fly there
+<b class="nc">&nbsp;            if(node1.isConfined()&amp;&amp; node2.isConfined()&amp;&amp;</b>
+<b class="nc">&nbsp;                    !node1.inNoFlyPolygon()&amp;&amp;!node2.inNoFlyPolygon() &amp;&amp;</b>
+<b class="nc">&nbsp;                    !node1.inNoFlyZone(node2) &amp;&amp; !node2.inNoFlyZone(node1)){</b>
+<b class="nc">&nbsp;                g.addEdge(edge.node1,edge.node2,edge);</b>
+<b class="nc">&nbsp;                g.setEdgeWeight(edge,1);</b>
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return g;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * since the drone can only move to nodes on the graph, the delivery coordinates of an order may not exactly be a node
+&nbsp;     * the method finds the node that is closest to the delivery coordinate. since the distance between each node is 0.00015 degrees
+&nbsp;     * there will definitely be a node that is considered &quot;close to&quot; the delivery coordinate
+&nbsp;     * @param hexGraph the graph of valid nodes and edges
+&nbsp;     * @return a hashmap of order numbers to the delivery nodes
+&nbsp;     */
+&nbsp;    private static HashMap&lt;String,LongLat&gt; getDeliveryNodes(Graph&lt;LongLat,NodeEdges&gt; hexGraph){
+<b class="nc">&nbsp;        if(hexGraph==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; orderNos = Orders.orderNos;</b>
+<b class="nc">&nbsp;        HashMap&lt;String,double[]&gt; deliveryCoordinates = Orders.deliveryCoordinates;</b>
+<b class="nc">&nbsp;        HashMap&lt;String,LongLat&gt; deliveryNodes = new HashMap&lt;&gt;();</b>
+&nbsp;        // goes through each order
+<b class="nc">&nbsp;        for(String order : orderNos){</b>
+<b class="nc">&nbsp;            LongLat currentOrder = new LongLat(deliveryCoordinates.get(order)[0],deliveryCoordinates.get(order)[1]);</b>
+<b class="nc">&nbsp;            boolean found = false;</b>
+&nbsp;            //goes through each node on the graph until a node that is close to the coordinate is found
+<b class="nc">&nbsp;            for (LongLat nodes : hexGraph.vertexSet()) {</b>
+<b class="nc">&nbsp;                if (currentOrder.closeTo(nodes)) {</b>
+<b class="nc">&nbsp;                    deliveryNodes.put(order, nodes);</b>
+<b class="nc">&nbsp;                    found = true;</b>
+<b class="nc">&nbsp;                    break;</b>
+&nbsp;                }
+<b class="nc">&nbsp;            }</b>
+&nbsp;            //if it is unable to find a node, it prints out the message
+<b class="nc">&nbsp;            if(!found){</b>
+<b class="nc">&nbsp;                System.out.println(&quot;cant find delivery node&quot;+ order);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return deliveryNodes;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    /**
+&nbsp;     * since the drone can only move to nodes on the graph, the pick up coordinates of an order may not exactly be a node
+&nbsp;     * the method finds the node that is closest to the pick up coordinate. since the distance between each node is 0.00015 degrees
+&nbsp;     * there will definitely be a node that is considered &quot;close to&quot; the pick up  coordinate
+&nbsp;     * @param hexGraph he graph of valid nodes and edges
+&nbsp;     * @return a hashmap of order numbers to the list of pick up nodes
+&nbsp;     */
+&nbsp;    private static HashMap&lt;String,ArrayList&lt;LongLat&gt;&gt; getPickUpNodes(Graph&lt;LongLat,NodeEdges&gt; hexGraph){
+<b class="nc">&nbsp;        if(hexGraph==null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        ArrayList&lt;String&gt; orderNos = Orders.orderNos;</b>
+<b class="nc">&nbsp;        HashMap&lt;String, ArrayList&lt;double[]&gt;&gt; pickUpCoordinates= Orders.pickUpCoordinates;</b>
+<b class="nc">&nbsp;        HashMap&lt;String,ArrayList&lt;LongLat&gt;&gt; pickUpNodes = new HashMap&lt;&gt;();</b>
+&nbsp;        //goes through each order
+<b class="nc">&nbsp;        for(String order:orderNos){</b>
+<b class="nc">&nbsp;           ArrayList&lt;double[]&gt; pickUpShops = pickUpCoordinates.get(order);</b>
+<b class="nc">&nbsp;           ArrayList&lt;LongLat&gt; nodes = new ArrayList&lt;&gt;();</b>
+&nbsp;           //goes through each pick up location for an order
+<b class="nc">&nbsp;           for (double[] shops:pickUpShops){</b>
+<b class="nc">&nbsp;               boolean found = false;</b>
+<b class="nc">&nbsp;               LongLat curr = new LongLat(shops[0],shops[1]);</b>
+&nbsp;               // goes through every node until a node close to the location is found
+<b class="nc">&nbsp;               for (LongLat node : hexGraph.vertexSet()) {</b>
+<b class="nc">&nbsp;                   if (curr.closeTo(node)) {</b>
+<b class="nc">&nbsp;                       nodes.add(node);</b>
+<b class="nc">&nbsp;                       found = true;</b>
+<b class="nc">&nbsp;                       break;</b>
+&nbsp;                   }
+<b class="nc">&nbsp;               }</b>
+&nbsp;               //if we cant find a node close to the location, the message is printed
+<b class="nc">&nbsp;               if(!found){</b>
+<b class="nc">&nbsp;                   System.out.println(&quot;not found &quot;+ order);</b>
+&nbsp;               }
+<b class="nc">&nbsp;           }</b>
+<b class="nc">&nbsp;           pickUpNodes.put(order,nodes);</b>
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return pickUpNodes;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method gets the node on the graph that is closest to appleton tower
+&nbsp;     * @param g the graph of valid nodes and edges
+&nbsp;     * @return the LongLat coordinates of the node closest to appleton tower
+&nbsp;     */
+&nbsp;    private static LongLat getAppleton(Graph&lt;LongLat,NodeEdges&gt; g){
+<b class="nc">&nbsp;        if(g == null){</b>
+<b class="nc">&nbsp;            System.err.println(&quot;Input cannot be null&quot;);</b>
+&nbsp;
+&nbsp;        }
+&nbsp;        //searches through every node until a node close to appleton is found
+<b class="nc">&nbsp;        for (LongLat nodes : g.vertexSet()) {</b>
+<b class="nc">&nbsp;            if (LongLat.appleton.closeTo(nodes)) {</b>
+<b class="nc">&nbsp;                return nodes;</b>
+&nbsp;
+&nbsp;            }
+<b class="nc">&nbsp;        }</b>
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>

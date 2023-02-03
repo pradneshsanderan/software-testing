@@ -1,0 +1,24 @@
+-------------------------------------------------------------------------------
+Test set: uk.ac.ed.inf.AppTest
+-------------------------------------------------------------------------------
+Tests run: 21, Failures: 0, Errors: 5, Skipped: 0, Time elapsed: 1.239 s <<< FAILURE! - in uk.ac.ed.inf.AppTest
+testMenusFourA(uk.ac.ed.inf.AppTest)  Time elapsed: 1.017 s  <<< ERROR!
+java.lang.IllegalArgumentException: unsupported URI http://localhost:null/menus/menus.json
+	at uk.ac.ed.inf.AppTest.testMenusFourA(AppTest.java:169)
+
+testMenusFourB(uk.ac.ed.inf.AppTest)  Time elapsed: 0 s  <<< ERROR!
+java.lang.IllegalArgumentException: unsupported URI http://localhost:null/menus/menus.json
+	at uk.ac.ed.inf.AppTest.testMenusFourB(AppTest.java:183)
+
+testMenusThree(uk.ac.ed.inf.AppTest)  Time elapsed: 0.002 s  <<< ERROR!
+java.lang.IllegalArgumentException: unsupported URI http://localhost:null/menus/menus.json
+	at uk.ac.ed.inf.AppTest.testMenusThree(AppTest.java:156)
+
+testMenusOne(uk.ac.ed.inf.AppTest)  Time elapsed: 0.002 s  <<< ERROR!
+java.lang.IllegalArgumentException: unsupported URI http://localhost:null/menus/menus.json
+	at uk.ac.ed.inf.AppTest.testMenusOne(AppTest.java:133)
+
+testMenusTwo(uk.ac.ed.inf.AppTest)  Time elapsed: 0.002 s  <<< ERROR!
+java.lang.IllegalArgumentException: unsupported URI http://localhost:null/menus/menus.json
+	at uk.ac.ed.inf.AppTest.testMenusTwo(AppTest.java:144)
+

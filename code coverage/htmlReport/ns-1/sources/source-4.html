@@ -1,0 +1,163 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > Drone</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">uk.ac.ed.inf</a>
+</div>
+
+<h1>Coverage Summary for Class: Drone (uk.ac.ed.inf)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Drone</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/2)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package uk.ac.ed.inf;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;
+&nbsp;public class Drone {
+&nbsp;    //Variables used
+&nbsp;    /**
+&nbsp;     * the number of moves the drone has left before it runs out of battery
+&nbsp;     */
+&nbsp;    public int MovesLeft;
+&nbsp;    /**
+&nbsp;     * the amount of money earned by completing the deliveries on a certain day
+&nbsp;     */
+&nbsp;    public static int totalAmountEarned;
+&nbsp;    /**
+&nbsp;     * percentage of money earned compared to the money that would  have been earned if all orders were completed
+&nbsp;     */
+&nbsp;    public static double percentagMonetaryValue;
+&nbsp;
+&nbsp;    //Standard Contructors
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the contructor for the drone class
+&nbsp;     * @param movesLeft the number of moves the drone has left. specified at the start.
+&nbsp;     */
+<b class="nc">&nbsp;    Drone(int movesLeft){</b>
+<b class="nc">&nbsp;        this.MovesLeft = movesLeft;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    //Public Methods
+&nbsp;
+&nbsp;    /**
+&nbsp;     * the method calculates the percentage of monetary value for the day. it first calculates the amount
+&nbsp;     * of money that was earned and then it calculates the total amount that could have been earned if all the orders were completed.
+&nbsp;     * it then returns the percentage. the method is used for my own checking of the efficiency of my program
+&nbsp;     * @param OrdersComp a list of the orders completed on that day
+&nbsp;     * @return the percentage of monetary value
+&nbsp;     */
+&nbsp;    public static double getPercentageMonetaryValue(ArrayList&lt;String&gt; OrdersComp){
+&nbsp;        // money earned
+<b class="nc">&nbsp;        double totalCompleted = Menus.getTotalChargeForOrders(OrdersComp);</b>
+<b class="nc">&nbsp;        totalAmountEarned = (int)totalCompleted;</b>
+&nbsp;        //total amount we could have earned
+<b class="nc">&nbsp;        double supposedAmount = Menus.getTotalChargeForOrders(Orders.orderNos);</b>
+&nbsp;        //percentage of monetary value
+<b class="nc">&nbsp;        double percent = (totalCompleted/supposedAmount)*100;</b>
+<b class="nc">&nbsp;        percentagMonetaryValue = percent;</b>
+<b class="nc">&nbsp;        return percent;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-02-02 14:53</div>
+</div>
+</body>
+</html>
